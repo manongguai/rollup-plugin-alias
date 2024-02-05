@@ -22,6 +22,8 @@ describe("alias", () => {
       });
       expect(aliasObj.resolveId("/index.js")).toBe("/index.js");
     });
+
+   
   });
   describe("options is array", () => {
     it("should replace when match success", () => {
@@ -51,6 +53,18 @@ describe("alias", () => {
         ],
       });
       expect(aliasObj.resolveId("/index.js")).toBe("/index.js");
+    });
+
+    it("find is regexp", () => {
+      const aliasObj: any = alias({
+        entries: [
+          {
+            find:/^(@@)/,
+            replacement:"./utils"
+          },
+        ]
+      });
+      expect(aliasObj.resolveId("@@/index.js")).toBe("./utils/index.js");
     });
   });
 });

@@ -5,7 +5,7 @@ interface EntriesObject {
 }
 
 interface EntriesArrayItem {
-  find: string;
+  find: string | RegExp;
   replacement: string;
 }
 
@@ -14,7 +14,7 @@ interface AliasOptions {
 }
 
 export function alias(options: AliasOptions): Plugin {
-  const entries = normalizeEntries(options.entries)
+  const entries = normalizeEntries(options.entries);
   return {
     name: "rollup-plugin-alias",
     resolveId: (source: string, importer: string | undefined, options) => {
@@ -27,13 +27,13 @@ export function alias(options: AliasOptions): Plugin {
       if (entry) {
         return entry.replace(source);
       }
-      return source
+      return source;
     },
   };
 }
 
 function normalizeEntries(entries: AliasOptions["entries"]) {
-  if(!entries) return []
+  if (!entries) return [];
   if (Array.isArray(entries)) {
     return entries.map(({ find, replacement }) => {
       return new Entry(find, replacement);
@@ -46,14 +46,18 @@ function normalizeEntries(entries: AliasOptions["entries"]) {
 }
 
 class Entry {
-  find: string;
+  find: string | RegExp;
   replacement: string;
-  constructor(find: string, replacement: string) {
+  constructor(find: string | RegExp, replacement: string) {
     this.find = find;
     this.replacement = replacement;
   }
   match(source: string) {
-    return source.startsWith(this.find);
+    if (typeof this.find === "string") {
+      return source.startsWith(this.find);
+    }else{
+      return this.find.test(source)
+    }
   }
   replace(source: string) {
     return source.replace(this.find, this.replacement);
